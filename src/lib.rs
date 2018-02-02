@@ -11,8 +11,17 @@ extern crate failure;
 #[macro_use]
 extern crate failure_derive;
 
+#[cfg(feature = "dalek")]
 extern crate ed25519_dalek;
+
+#[cfg(feature = "dalek")]
 extern crate sha2;
+
+#[cfg(feature = "yubihsm2")]
+extern crate std;
+
+#[cfg(feature = "yubihsm2")]
+extern crate yubihsm;
 
 pub mod ed25519;
 pub mod error;

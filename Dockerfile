@@ -3,7 +3,13 @@ FROM centos:7.4.1708
 # Install/update RPMs
 RUN yum update -y
 RUN yum groupinstall -y "Development Tools"
-RUN yum install -y curl libssl-dev python clang libclang-dev
+RUN yum install -y curl openssl-devel python centos-release-scl
+
+# Install LLVM 4.0 from SCL
+RUN yum install -y llvm-toolset-7
+
+# Enable llvm-toolset-7 in the shell environment
+RUN bash -l -c "echo 'source scl_source enable llvm-toolset-7' > /etc/profile.d/llvm.sh"
 
 # Install YubiHSM2 SDK
 ENV YUBIHSM2_SDK_VERSION 1.0.1-centos7-amd64
@@ -27,7 +33,7 @@ RUN rustup update && \
     rustup default $RUST_NIGHTLY_VERSION
 
 RUN bash -l -c "echo $(rustc --print sysroot)/lib >> /etc/ld.so.conf"
-RUN bash -l -c "echo /usr/local/lib >> /etc/ld.so.conf"
+RUN bash -l -c "echo /usr/local/lib64 >> /etc/ld.so.conf"
 RUN ldconfig
 
 RUN cargo install rustfmt-nightly --vers $RUSTFMT_NIGHTLY_VERSION --force

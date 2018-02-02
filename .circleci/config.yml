@@ -3,12 +3,15 @@ version: 2
 jobs:
   build:
     docker:
-      - image: tarcieri/signatory-circleci:201802051857
+      - image: tarcieri/signatory:latest
+    environment:
+      - CARGO_FEATURES: dalek,yubihsm2
+      - LIBCLANG_PATH: /opt/rh/llvm-toolset-7/root/lib64/
 
     steps:
       - checkout
       - restore_cache:
-          key: cache-201802051839
+          key: cache-20180207
       - run:
           name: rustfmt
           command: |
@@ -17,20 +20,21 @@ jobs:
       - run:
           name: build (nightly)
           command: |
+            # Nightly is the default toolchain
             rustc --version --verbose
             cargo --version --verbose
-            cargo build
+            scl enable llvm-toolset-7 "cargo build --features=$CARGO_FEATURES"
       - run:
           name: build (stable)
           command: |
             rustup run stable rustc --version --verbose
             rustup run stable cargo --version --verbose
-            rustup run stable cargo build
+            scl enable llvm-toolset-7 "rustup run stable cargo build --features=$CARGO_FEATURES"
       - run:
           name: test (stable)
           command: rustup run stable cargo test
       - save_cache:
-          key: cache-201802051839
+          key: cache-20180207
           paths:
             - "~/.cargo"
             - "./target"
